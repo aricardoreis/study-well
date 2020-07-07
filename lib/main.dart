@@ -85,7 +85,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 cubit: sl<TimerCubit>(),
                 builder: (context, state) {
                   if (state is Running) {
-                    return Text(state.fullTimerFormat);
+                    return Row(
+                      children: <Widget>[
+                        Center(
+                          child: Text(state.fullTimerFormat),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.stop,
+                            color: Colors.red,
+                          ),
+                          onPressed: () => sl<TimerCubit>().stop(),
+                        )
+                      ],
+                    );
                   } else {
                     return IconButton(
                       icon: Icon(Icons.play_arrow),
