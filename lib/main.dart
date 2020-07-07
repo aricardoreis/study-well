@@ -70,14 +70,29 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  TabController _tabController;
   int _tabIndex = 0;
+
+  @override
+  void initState() {
+    _tabController = new TabController(length: 3, vsync: this, initialIndex: _tabIndex);
+
+    _tabController.addListener(() {
+      setState(() {
+        _tabIndex = _tabController.index;
+      });
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: DefaultTabController(
-        initialIndex: 0,
+        initialIndex: _tabIndex,
         length: 3,
         child: Scaffold(
           appBar: AppBar(
@@ -110,11 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
             bottom: TabBar(
-              onTap: (index) {
-                setState(() {
-                  _tabIndex = index;
-                });
-              },
+              controller: _tabController,
               tabs: [
                 Tab(icon: Icon(Icons.library_books)),
                 Tab(icon: Icon(Icons.directions_bus)),
@@ -124,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text('Study Well'),
           ),
           body: TabBarView(
+            controller: _tabController,
             children: [
               MatterPage(),
               Icon(Icons.directions_transit),
