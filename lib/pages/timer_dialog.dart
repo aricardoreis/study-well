@@ -58,7 +58,7 @@ class _TimerDialogState extends State<TimerDialog> {
           onPressed: () async {
             Navigator.of(context).pop(true);
 
-            sl<TimerCubit>().addInfo(_selectedMatter);
+            sl<TimerCubit>().addInfo(_selectedMatter, DateTime.now());
           },
         ),
       ],
@@ -83,7 +83,11 @@ class _TimerDialogState extends State<TimerDialog> {
             title: CubitBuilder<TimerCubit, TimerState>(
               cubit: sl<TimerCubit>(),
               builder: (context, state) {
-                return Text(state.fullTimerFormat);
+                if (state is Running) {
+                  return Text(state.fullTimerFormat);
+                } else {
+                  return Text('');
+                }
               },
             ),
           ),

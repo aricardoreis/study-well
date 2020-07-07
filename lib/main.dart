@@ -2,6 +2,7 @@ import 'package:flutter_cubit/flutter_cubit.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hydrated_cubit/hydrated_cubit.dart';
 import 'package:study_well/pages/matter_dialog.dart';
 import 'package:study_well/pages/timer_dialog.dart';
 import 'package:study_well/service_locator.dart';
@@ -11,10 +12,11 @@ import 'package:study_well/viewmodels/matter/matter_cubit.dart';
 
 import 'pages/matter_page.dart';
 import 'viewmodels/timer/timer_cubit.dart';
-import 'package:study_well/util/timer_util.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  HydratedCubit.storage = await HydratedStorage.build();
 
   await setupServiceLocator();
 
@@ -27,7 +29,6 @@ void main() async {
 }
 
 Future clearData() async {
-  sl<TimerService>().clear();
   var list = await sl<MatterService>().getAll();
   list.forEach((element) async {
     sl<MatterService>().delete(element.id);

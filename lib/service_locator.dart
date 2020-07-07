@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:study_well/util/timer_util.dart';
 import 'package:study_well/viewmodels/matter/matter_cubit.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
 
@@ -19,6 +18,4 @@ Future<void> setupServiceLocator() async {
   // services
   //sl.registerLazySingleton<MatterService>(() => MatterServiceSharedPrefImpl(sharedPreferences: sl()));
   sl.registerLazySingleton<MatterService>(() => MatterServiceFirebaseImpl());
-  sl.registerLazySingleton<TimerService>(
-      () => TimerServiceSharedPrefsImpl(sharedPreferences: sl()));
 }

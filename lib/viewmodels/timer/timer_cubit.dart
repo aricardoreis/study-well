@@ -1,58 +1,93 @@
 import 'package:cubit/cubit.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hydrated_cubit/hydrated_cubit.dart';
 import 'dart:async';
 
-import 'package:study_well/service_locator.dart';
-import 'package:study_well/util/timer_util.dart';
+import 'package:study_well/util/timer/ticker.dart';
+import 'package:study_well/util/timer/timer_info.dart';
 
-class TimerCubit extends Cubit<TimerState> {
+class TimerCubit extends HydratedCubit<TimerState> {
+  bool _hasAlreadyLoadFromStorage = false;
+
   final Ticker _ticker = Ticker();
 
   StreamSubscription<int> _tickerSubscription;
 
-  TimerCubit() : super(Ready(0)) {
-    tryToResume().listen(
-      (duration) {
-        if (duration != 0 && state is Ready) {
-          resume(duration);
+  TimerCubit() : super(Ready());
+
+  @override
+  TimerState fromJson(Map<String, dynamic> json) {
+    try {
+      final info = TimerInfo.fromJson(json);
+      if (info.start != null) {
+        var now = DateTime.now();
+
+        int duration = info.duration;
+        if (!_hasAlreadyLoadFromStorage) {
+          _hasAlreadyLoadFromStorage = true;
+          duration =
+              info.duration + now.difference(info.lastUpdateTime).inSeconds;
+
+          _resetTicker(start: duration);
         }
-      },
-    );
+
+        return Running(info.copyWith(duration: duration));
+      } else {
+        return null;
+      }
+    } catch (_) {
+      return null;
+    }
   }
 
-  addInfo(String matterId){
-    emit(Running(state.duration, matterId: matterId));
+  @override
+  Map<String, dynamic> toJson(TimerState state) {
+    if (state is Running) {
+      return state.info.toJson();
+    } else {
+      return TimerInfo(0).toJson();
+    }
+  }
+
+  addInfo(String matterId, DateTime start) {
+    if (state is Running) {
+      var currentState = state as Running;
+      emit(Running(
+          currentState.info.copyWith(matterId: matterId, start: start)));
+    }
   }
 
   start() async {
-    await sl<TimerService>().save();
-    emit(Running(0));
+    emit(Running(TimerInfo(0)));
     _resetTicker();
   }
 
-  resume(int duration) {
-    emit(Running(duration));
-    _resetTicker(start: duration);
+  resume() {
+    if (state is Running) {
+      var currentState = state as Running;
+      emit(Running(currentState.info.copyWith()));
+      _resetTicker(start: currentState.info.duration);
+    }
   }
 
   pause() {
-    // TODO: implement pause timer
+    if (state is Running) {
+      _tickerSubscription?.pause();
+    }
   }
 
   stop() async {
-    await sl<TimerService>().clear();
     if (state is Running) {
-      _tickerSubscription?.pause();
-      emit(Finished(state.duration));
+      _tickerSubscription?.cancel();
+      emit(Finished());
     }
   }
 
   cancel() async {
-    await sl<TimerService>().clear();
     if (state is Running || state is Finished) {
       _tickerSubscription?.cancel();
-      emit(Ready(0));
+      emit(Ready());
     }
   }
 
@@ -60,58 +95,58 @@ class TimerCubit extends Cubit<TimerState> {
     _tickerSubscription?.cancel();
     _tickerSubscription = _ticker.tick(start: start).listen(
       (duration) {
-        emit(Running(duration));
+        Running currentState = state as Running;
+        emit(Running(currentState.info.copyWith(
+          duration: duration,
+          lastUpdateTime: DateTime.now(),
+        )));
       },
     );
   }
 
-  Stream<int> tryToResume() async* {
-    DateTime startTimer = await sl<TimerService>().load();
-    yield startTimer != null
-        ? DateTime.now().difference(startTimer).inSeconds
-        : 0;
-  }
-
   @override
   void onTransition(Transition<TimerState> transition) {
-    print('TimerCubit: $transition ${transition.nextState.duration}');
+    print('TimerCubit: $transition');
+    if (transition.nextState is Running) {
+      var runningState = transition.nextState as Running;
+      print(
+          '[${runningState.info.start}] Duration: ${runningState.info.duration} MatterId: ${runningState.info.matterId} [${runningState.info.lastUpdateTime}]');
+    }
     super.onTransition(transition);
   }
 }
 
 @immutable
 abstract class TimerState extends Equatable {
-  final int duration;
-  final String matterId;
+  @override
+  List<Object> get props => [];
+}
 
-  TimerState(this.duration, {this.matterId});
+class Ready extends TimerState {
+  Ready() : super();
+}
+
+class Finished extends TimerState {
+  Finished() : super();
+}
+
+class Running extends TimerState {
+  final TimerInfo info;
+
+  Running(this.info) : super();
 
   String get hourMinuteFormat => fullTimerFormat.split(':').take(2).join(':');
 
   String get fullTimerFormat {
     final String hours =
-        ((duration / 3600) % 3600).floor().toString().padLeft(2, '0');
+        ((info.duration / 3600) % 3600).floor().toString().padLeft(2, '0');
     final String minutes =
-        (((duration % 3600) / 60) % 60).floor().toString().padLeft(2, '0');
+        (((info.duration % 3600) / 60) % 60).floor().toString().padLeft(2, '0');
     final String seconds =
-        ((duration % 3600) % 60).floor().toString().padLeft(2, '0');
+        ((info.duration % 3600) % 60).floor().toString().padLeft(2, '0');
     return '$hours:$minutes:$seconds';
   }
 
   @override
-  List<Object> get props => [duration, matterId];
-}
-
-class Ready extends TimerState {
-  Ready(int duration) : super(duration);
-}
-
-class Running extends TimerState {
-  Running(int duration, {String matterId})
-      : super(duration, matterId: matterId);
-}
-
-class Finished extends TimerState {
-  Finished(int duration, {String matterId})
-      : super(duration, matterId: matterId);
+  List<Object> get props => [info];
 }
