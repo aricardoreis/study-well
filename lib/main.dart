@@ -3,14 +3,14 @@ import 'package:flutter_cubit/flutter_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hydrated_cubit/hydrated_cubit.dart';
-import 'package:study_well/pages/matter_dialog.dart';
+import 'package:study_well/pages/subject_dialog.dart';
 import 'package:study_well/pages/timer_dialog.dart';
 import 'package:study_well/service_locator.dart';
-import 'package:study_well/services/matter_service.dart';
+import 'package:study_well/services/subject_service.dart';
 import 'package:study_well/util/themes.dart';
-import 'package:study_well/viewmodels/matter/matter_cubit.dart';
+import 'package:study_well/viewmodels/subject/subject_cubit.dart';
 
-import 'pages/matter_page.dart';
+import 'pages/subject_page.dart';
 import 'viewmodels/timer/timer_cubit.dart';
 
 void main() async {
@@ -29,9 +29,9 @@ void main() async {
 }
 
 Future clearData() async {
-  var list = await sl<MatterService>().getAll();
+  var list = await sl<SubjectService>().getAll();
   list.forEach((element) async {
-    sl<MatterService>().delete(element.id);
+    sl<SubjectService>().delete(element.id);
   });
 }
 
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
       ),
       //home: MyHomePage(title: 'Study Well'),
       home: CubitProvider(
-        create: (_) => sl<MatterCubit>(),
+        create: (_) => sl<SubjectCubit>(),
         child: MyHomePage(),
       ),
     );
@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage>
           body: TabBarView(
             controller: _tabController,
             children: [
-              MatterPage(),
+              SubjectPage(),
               Icon(Icons.directions_transit),
               Icon(Icons.directions_bike),
             ],
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage>
     switch (_tabIndex) {
       case 0:
         text = 'Adicionar matéria';
-        onPressed = () => _showMatterActionView();
+        onPressed = () => _showSubjectActionView();
         break;
       case 1:
         text = 'Adicionar estudo';
@@ -183,15 +183,15 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  void _showMatterActionView() {
+  void _showSubjectActionView() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return MatterDialog();
+        return SubjectDialog();
       },
     ).then((value) async {
       if (value) {
-        await sl<MatterCubit>().loadList();
+        await sl<SubjectCubit>().loadList();
       }
     });
   }

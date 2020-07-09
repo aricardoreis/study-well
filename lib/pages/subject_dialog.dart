@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:study_well/service_locator.dart';
-import 'package:study_well/viewmodels/matter/matter_cubit.dart';
+import 'package:study_well/viewmodels/subject/subject_cubit.dart';
 
-class MatterDialog extends StatefulWidget {
+class SubjectDialog extends StatefulWidget {
   @override
-  _MatterDialogState createState() => _MatterDialogState();
+  _SubjectDialogState createState() => _SubjectDialogState();
 }
 
-class _MatterDialogState extends State<MatterDialog> {
-  final TextEditingController _matterNameController = TextEditingController();
+class _SubjectDialogState extends State<SubjectDialog> {
+  final TextEditingController _subjectNameController = TextEditingController();
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _MatterDialogState extends State<MatterDialog> {
       title: Text("Adicionar matéria"),
       content: Container(
         child: TextField(
-          controller: _matterNameController,
+          controller: _subjectNameController,
           autofocus: true,
           maxLength: 20,
           decoration: InputDecoration(
@@ -40,10 +40,10 @@ class _MatterDialogState extends State<MatterDialog> {
         FlatButton(
           child: Text("Salvar"),
           onPressed: () async {
-            String name = _matterNameController.text;
-            print('-> Matter.name: $name');
+            String name = _subjectNameController.text;
+            print('-> Subject.name: $name');
 
-            await sl<MatterCubit>().add(name);
+            await sl<SubjectCubit>().add(name);
 
             Navigator.of(context).pop(true);
           },

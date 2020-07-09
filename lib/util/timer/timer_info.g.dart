@@ -11,7 +11,7 @@ TimerInfo _$TimerInfoFromJson(Map<String, dynamic> json) {
     json['duration'] as int,
     start:
         json['start'] == null ? null : DateTime.parse(json['start'] as String),
-    matterId: json['matterId'] as String,
+    subjectId: json['subjectId'] as String,
     lastUpdateTime: json['lastUpdateTime'] == null
         ? null
         : DateTime.parse(json['lastUpdateTime'] as String),
@@ -20,7 +20,7 @@ TimerInfo _$TimerInfoFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$TimerInfoToJson(TimerInfo instance) => <String, dynamic>{
       'duration': instance.duration,
-      'matterId': instance.matterId,
+      'subjectId': instance.subjectId,
       'start': instance.start?.toIso8601String(),
       'lastUpdateTime': instance.lastUpdateTime?.toIso8601String(),
     };

@@ -5,25 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:study_well/models/matter_model.dart';
+import 'package:study_well/models/subject_model.dart';
 
-abstract class MatterService {
-  Future<List<MatterModel>> getAll();
+abstract class SubjectService {
+  Future<List<SubjectModel>> getAll();
   Future<bool> insert(String name);
   void update(String id, String name);
   void delete(String id);
 }
 
-// Implementation of MatterService using Firebase Firestore
-class MatterServiceFirebaseImpl extends MatterService {
-  CollectionReference _collection = Firestore.instance.collection('matter');
+// Implementation of SubjectService using Firebase Firestore
+class SubjectServiceFirebaseImpl extends SubjectService {
+  CollectionReference _collection = Firestore.instance.collection('subject');
 
   @override
-  Future<List<MatterModel>> getAll() async {
+  Future<List<SubjectModel>> getAll() async {
     var collection = await _collection.snapshots().first;
     var list = collection.documents
         .map(
-            (item) => MatterModel(id: item.documentID, name: item.data['name']))
+            (item) => SubjectModel(id: item.documentID, name: item.data['name']))
         .toList();
 
     return list;
@@ -64,24 +64,24 @@ class MatterServiceFirebaseImpl extends MatterService {
   }
 }
 
-// Implementation of MatterService using Shared Preferences
-const MATTER_LIST = 'MATTER_LIST';
+// Implementation of SubjectService using Shared Preferences
+const SUBJECT_LIST = 'SUBJECT_LIST';
 
-class MatterServiceSharedPrefImpl extends MatterService {
+class SubjectServiceSharedPrefImpl extends SubjectService {
   final SharedPreferences sharedPreferences;
 
-  MatterServiceSharedPrefImpl({@required this.sharedPreferences});
+  SubjectServiceSharedPrefImpl({@required this.sharedPreferences});
 
   @override
-  Future<List<MatterModel>> getAll() async {
+  Future<List<SubjectModel>> getAll() async {
     await Future.delayed(Duration(seconds: 1));
 
-    var list = List<MatterModel>();
+    var list = List<SubjectModel>();
 
-    final jsonString = sharedPreferences.getString(MATTER_LIST);
+    final jsonString = sharedPreferences.getString(SUBJECT_LIST);
     if (jsonString != null) {
       list = (json.decode(jsonString) as Iterable)
-          .map((item) => MatterModel.fromJson(item))
+          .map((item) => SubjectModel.fromJson(item))
           .toList();
     }
 
@@ -95,9 +95,9 @@ class MatterServiceSharedPrefImpl extends MatterService {
       throw Exception("Já existe uma matéria com o nome informado.");
     }
 
-    list.add(MatterModel(id: 0.toString(), name: name));
+    list.add(SubjectModel(id: 0.toString(), name: name));
 
-    sharedPreferences.setString(MATTER_LIST, json.encode(list));
+    sharedPreferences.setString(SUBJECT_LIST, json.encode(list));
 
     return Future.value(true);
   }

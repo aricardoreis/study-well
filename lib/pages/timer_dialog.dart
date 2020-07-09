@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cubit/flutter_cubit.dart';
-import 'package:study_well/models/matter_model.dart';
-import 'package:study_well/services/matter_service.dart';
+import 'package:study_well/models/subject_model.dart';
+import 'package:study_well/services/subject_service.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
 
 import '../service_locator.dart';
@@ -12,7 +12,7 @@ class TimerDialog extends StatefulWidget {
 }
 
 class _TimerDialogState extends State<TimerDialog> {
-  String _selectedMatter;
+  String _selectedSubject;
 
   @override
   void initState() {
@@ -26,10 +26,10 @@ class _TimerDialogState extends State<TimerDialog> {
     return AlertDialog(
       title: Text('Adicionar estudo'),
       content: FutureBuilder(
-        future: sl<MatterService>().getAll(),
+        future: sl<SubjectService>().getAll(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            var list = snapshot.data as List<MatterModel>;
+            var list = snapshot.data as List<SubjectModel>;
             var items = list
                 .map(
                   (item) => DropdownMenuItem(
@@ -58,14 +58,14 @@ class _TimerDialogState extends State<TimerDialog> {
           onPressed: () async {
             Navigator.of(context).pop(true);
 
-            sl<TimerCubit>().addInfo(_selectedMatter, DateTime.now());
+            sl<TimerCubit>().addInfo(_selectedSubject, DateTime.now());
           },
         ),
       ],
     );
   }
 
-  Widget _buildDialog(List<DropdownMenuItem<String>> matterItems) {
+  Widget _buildDialog(List<DropdownMenuItem<String>> subjectItems) {
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -101,13 +101,13 @@ class _TimerDialogState extends State<TimerDialog> {
               color: Color(0xFF4C5158),
             ),
             title: DropdownButtonFormField<String>(
-              value: _selectedMatter,
+              value: _selectedSubject,
               onChanged: (value) {
                 setState(() {
-                  _selectedMatter = value;
+                  _selectedSubject = value;
                 });
               },
-              items: matterItems,
+              items: subjectItems,
               decoration: InputDecoration(
                 labelStyle: TextStyle(
                   color: Color(0xFF4C5158),

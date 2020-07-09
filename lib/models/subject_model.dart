@@ -1,13 +1,13 @@
 import 'package:meta/meta.dart';
 
-class MatterModel {
+class SubjectModel {
   final String id;
   final String name;
 
-  MatterModel({this.id, @required this.name}); // : assert(name.isNotEmpty);
+  SubjectModel({this.id, @required this.name}); // : assert(name.isNotEmpty);
 
-  factory MatterModel.fromJson(Map<String, dynamic> json) {
-    return MatterModel(
+  factory SubjectModel.fromJson(Map<String, dynamic> json) {
+    return SubjectModel(
       id: json['id'],
       name: json['name'],
     );

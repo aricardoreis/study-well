@@ -50,11 +50,11 @@ class TimerCubit extends HydratedCubit<TimerState> {
     }
   }
 
-  addInfo(String matterId, DateTime start) {
+  addInfo(String subjectId, DateTime start) {
     if (state is Running) {
       var currentState = state as Running;
       emit(Running(
-          currentState.info.copyWith(matterId: matterId, start: start)));
+          currentState.info.copyWith(subjectId: subjectId, start: start)));
     }
   }
 
@@ -110,7 +110,7 @@ class TimerCubit extends HydratedCubit<TimerState> {
     if (transition.nextState is Running) {
       var runningState = transition.nextState as Running;
       print(
-          '[${runningState.info.start}] Duration: ${runningState.info.duration} MatterId: ${runningState.info.matterId} [${runningState.info.lastUpdateTime}]');
+          '[${runningState.info.start}] Duration: ${runningState.info.duration} subjectId: ${runningState.info.subjectId} [${runningState.info.lastUpdateTime}]');
     }
     super.onTransition(transition);
   }

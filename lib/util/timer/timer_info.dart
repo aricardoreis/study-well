@@ -5,7 +5,7 @@ part 'timer_info.g.dart';
 @JsonSerializable()
 class TimerInfo {
   final int duration;
-  final String matterId;
+  final String subjectId;
 
   // This value is necessary only to know on which day the timer has started.
   final DateTime start;
@@ -13,7 +13,7 @@ class TimerInfo {
   // Persists last update time to try to resume appropriately in case the app closes in running state.
   final DateTime lastUpdateTime;
 
-  TimerInfo(this.duration, {this.start, this.matterId, this.lastUpdateTime});
+  TimerInfo(this.duration, {this.start, this.subjectId, this.lastUpdateTime});
 
   factory TimerInfo.fromJson(Map<String, dynamic> json) =>
       _$TimerInfoFromJson(json);
@@ -21,13 +21,13 @@ class TimerInfo {
 
   TimerInfo copyWith({
     int duration,
-    String matterId,
+    String subjectId,
     DateTime start,
     DateTime lastUpdateTime,
   }) {
     return TimerInfo(
       duration ?? this.duration,
-      matterId: matterId ?? this.matterId,
+      subjectId: subjectId ?? this.subjectId,
       start: start ?? this.start,
       lastUpdateTime: lastUpdateTime ?? this.lastUpdateTime,
     );
