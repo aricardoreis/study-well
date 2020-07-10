@@ -22,8 +22,8 @@ class SubjectServiceFirebaseImpl extends SubjectService {
   Future<List<SubjectModel>> getAll() async {
     var collection = await _collection.snapshots().first;
     var list = collection.documents
-        .map(
-            (item) => SubjectModel(id: item.documentID, name: item.data['name']))
+        .map((item) =>
+            SubjectModel(id: item.documentID, name: item.data['name']))
         .toList();
 
     return list;

@@ -5,6 +5,7 @@ import 'package:hydrated_cubit/hydrated_cubit.dart';
 import 'dart:async';
 
 import 'package:study_well/util/timer/ticker.dart';
+import 'package:study_well/util/timer/timer.dart';
 import 'package:study_well/util/timer/timer_info.dart';
 
 class TimerCubit extends HydratedCubit<TimerState> {
@@ -79,8 +80,9 @@ class TimerCubit extends HydratedCubit<TimerState> {
 
   stop() async {
     if (state is Running) {
+      var runningState = state as Running;
       _tickerSubscription?.cancel();
-      emit(Finished());
+      emit(Finished(runningState.info));
     }
   }
 
@@ -127,7 +129,8 @@ class Ready extends TimerState {
 }
 
 class Finished extends TimerState {
-  Finished() : super();
+  final TimerInfo info;
+  Finished(this.info) : super();
 }
 
 class Running extends TimerState {
@@ -136,16 +139,7 @@ class Running extends TimerState {
   Running(this.info) : super();
 
   String get hourMinuteFormat => fullTimerFormat.split(':').take(2).join(':');
-
-  String get fullTimerFormat {
-    final String hours =
-        ((info.duration / 3600) % 3600).floor().toString().padLeft(2, '0');
-    final String minutes =
-        (((info.duration % 3600) / 60) % 60).floor().toString().padLeft(2, '0');
-    final String seconds =
-        ((info.duration % 3600) % 60).floor().toString().padLeft(2, '0');
-    return '$hours:$minutes:$seconds';
-  }
+  String get fullTimerFormat => TimerUtil.durationToString(info.duration);
 
   @override
   List<Object> get props => [info];

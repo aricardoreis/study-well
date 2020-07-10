@@ -25,9 +25,6 @@ class _SubjectPageState extends State<SubjectPage> {
             itemBuilder: (context, index) => Card(
               child: ListTile(
                 title: Text(items[index].name),
-                // leading: CircleAvatar(
-                //   backgroundImage: NetworkImage(items[index].urlImage),
-                // ),
               ),
             ),
           );
@@ -36,15 +33,5 @@ class _SubjectPageState extends State<SubjectPage> {
         }
       },
     );
-    // return Center(
-    //   child: Column(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     children: <Widget>[
-    //       Text(
-    //         'Não há matérias cadastradas',
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 }

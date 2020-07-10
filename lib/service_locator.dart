@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:study_well/services/study_record_service.dart';
 import 'package:study_well/viewmodels/subject/subject_cubit.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
 
@@ -16,6 +17,6 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton(() => TimerCubit());
 
   // services
-  //sl.registerLazySingleton<SubjectService>(() => SubjectServiceSharedPrefImpl(sharedPreferences: sl()));
   sl.registerLazySingleton<SubjectService>(() => SubjectServiceFirebaseImpl());
+  sl.registerLazySingleton<StudyRecordService>(() => StudyRecordServiceFirebaseImpl());
 }

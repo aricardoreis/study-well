@@ -3,6 +3,8 @@ import 'package:flutter_cubit/flutter_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hydrated_cubit/hydrated_cubit.dart';
+import 'package:study_well/pages/study_record_dialog.dart';
+import 'package:study_well/pages/study_record_page.dart';
 import 'package:study_well/pages/subject_dialog.dart';
 import 'package:study_well/pages/timer_dialog.dart';
 import 'package:study_well/service_locator.dart';
@@ -23,7 +25,7 @@ void main() async {
   // await clearData();
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) {
+      .then((_) async {
     runApp(MyApp());
   });
 }
@@ -52,7 +54,6 @@ class MyApp extends StatelessWidget {
         fontFamily: 'NunitoSans',
         brightness: Brightness.dark,
       ),
-      //home: MyHomePage(title: 'Study Well'),
       home: CubitProvider(
         create: (_) => sl<SubjectCubit>(),
         child: MyHomePage(),
@@ -77,7 +78,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
-    _tabController = new TabController(length: 3, vsync: this, initialIndex: _tabIndex);
+    _tabController =
+        new TabController(length: 3, vsync: this, initialIndex: _tabIndex);
 
     _tabController.addListener(() {
       setState(() {
@@ -97,38 +99,46 @@ class _MyHomePageState extends State<MyHomePage>
         child: Scaffold(
           appBar: AppBar(
             actions: <Widget>[
-              CubitBuilder<TimerCubit, TimerState>(
+              CubitListener<TimerCubit, TimerState>(
                 cubit: sl<TimerCubit>(),
-                builder: (context, state) {
-                  if (state is Running) {
-                    return Row(
-                      children: <Widget>[
-                        Center(
-                          child: Text(state.fullTimerFormat),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.stop,
-                            color: Colors.red,
-                          ),
-                          onPressed: () => sl<TimerCubit>().stop(),
-                        )
-                      ],
-                    );
-                  } else {
-                    return IconButton(
-                      icon: Icon(Icons.play_arrow),
-                      onPressed: () => _showPlayTimerActionView(),
-                    );
-                  }
+                listenWhen: (previous, current) => current is Finished,
+                listener: (context, state) {
+                  print('FINISHED');
+                  _showTimerResumeDialog(state as Finished);
                 },
+                child: CubitBuilder<TimerCubit, TimerState>(
+                  cubit: sl<TimerCubit>(),
+                  builder: (context, state) {
+                    if (state is Running) {
+                      return Row(
+                        children: <Widget>[
+                          Center(
+                            child: Text(state.fullTimerFormat),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.stop,
+                              color: Colors.red,
+                            ),
+                            onPressed: () => sl<TimerCubit>().stop(),
+                          )
+                        ],
+                      );
+                    } else {
+                      return IconButton(
+                        icon: Icon(Icons.play_arrow),
+                        onPressed: () => _showPlayTimerActionView(),
+                      );
+                    }
+                  },
+                ),
               ),
             ],
             bottom: TabBar(
               controller: _tabController,
               tabs: [
                 Tab(icon: Icon(Icons.library_books)),
-                Tab(icon: Icon(Icons.directions_bus)),
+                Tab(icon: Icon(Icons.timer)),
                 Tab(icon: Icon(Icons.directions_bike)),
               ],
             ),
@@ -138,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
             controller: _tabController,
             children: [
               SubjectPage(),
-              Icon(Icons.directions_transit),
+              StudyRecordPage(),
               Icon(Icons.directions_bike),
             ],
           ),
@@ -206,6 +216,20 @@ class _MyHomePageState extends State<MyHomePage>
       if (!(value != null && value)) {
         sl<TimerCubit>().stop();
       }
+    });
+  }
+
+  void _showTimerResumeDialog(Finished state) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StudyRecordDialog(
+          subject: state.info.subjectId,
+          duration: state.info.duration,
+        );
+      },
+    ).then((value) async {
+      // TODO: Update items
     });
   }
 }
