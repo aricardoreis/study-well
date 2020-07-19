@@ -5,6 +5,7 @@ import 'package:study_well/services/study_record_service.dart';
 import 'package:study_well/util/timer/timer.dart';
 import 'package:study_well/util/timer/timer_info.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
+import 'package:study_well/viewmodels/timer/timer_state.dart';
 
 import '../service_locator.dart';
 

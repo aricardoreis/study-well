@@ -1,12 +1,10 @@
-import 'package:cubit/cubit.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hydrated_cubit/hydrated_cubit.dart';
 import 'dart:async';
 
+import 'package:cubit/cubit.dart';
+import 'package:hydrated_cubit/hydrated_cubit.dart';
 import 'package:study_well/util/timer/ticker.dart';
-import 'package:study_well/util/timer/timer.dart';
 import 'package:study_well/util/timer/timer_info.dart';
+import 'package:study_well/viewmodels/timer/timer_state.dart';
 
 class TimerCubit extends HydratedCubit<TimerState> {
   bool _hasAlreadyLoadFromStorage = false;
@@ -20,12 +18,13 @@ class TimerCubit extends HydratedCubit<TimerState> {
   @override
   TimerState fromJson(Map<String, dynamic> json) {
     try {
-      final info = TimerInfo.fromJson(json);
+      final state = Working.fromJson(json);
+      var info = state.info;
       if (info.start != null) {
         var now = DateTime.now();
 
         int duration = info.duration;
-        if (!_hasAlreadyLoadFromStorage) {
+        if (!_hasAlreadyLoadFromStorage && state is Running) {
           _hasAlreadyLoadFromStorage = true;
           duration =
               info.duration + now.difference(info.lastUpdateTime).inSeconds;
@@ -33,7 +32,7 @@ class TimerCubit extends HydratedCubit<TimerState> {
           _resetTicker(start: duration);
         }
 
-        return Running(info.copyWith(duration: duration));
+        return state;
       } else {
         return null;
       }
@@ -44,10 +43,11 @@ class TimerCubit extends HydratedCubit<TimerState> {
 
   @override
   Map<String, dynamic> toJson(TimerState state) {
-    if (state is Running) {
-      return state.info.toJson();
+    if (state is Working) {
+      return state.toJson();
     } else {
-      return TimerInfo(0).toJson();
+      return null;
+      // return Working(null).toJson();
     }
   }
 
@@ -65,8 +65,8 @@ class TimerCubit extends HydratedCubit<TimerState> {
   }
 
   resume() {
-    if (state is Running) {
-      var currentState = state as Running;
+    if (state is Paused) {
+      var currentState = state as Working;
       emit(Running(currentState.info.copyWith()));
       _resetTicker(start: currentState.info.duration);
     }
@@ -74,15 +74,18 @@ class TimerCubit extends HydratedCubit<TimerState> {
 
   pause() {
     if (state is Running) {
+      var runningState = state as Running;
       _tickerSubscription?.pause();
+      emit(Paused(runningState.info));
     }
   }
 
   stop() async {
-    if (state is Running) {
-      var runningState = state as Running;
+    if (state is Running || state is Paused) {
+      var info =
+          state is Running ? (state as Running).info : (state as Paused).info;
       _tickerSubscription?.cancel();
-      emit(Finished(runningState.info));
+      emit(Finished(info));
     }
   }
 
@@ -116,31 +119,4 @@ class TimerCubit extends HydratedCubit<TimerState> {
     }
     super.onTransition(transition);
   }
-}
-
-@immutable
-abstract class TimerState extends Equatable {
-  @override
-  List<Object> get props => [];
-}
-
-class Ready extends TimerState {
-  Ready() : super();
-}
-
-class Finished extends TimerState {
-  final TimerInfo info;
-  Finished(this.info) : super();
-}
-
-class Running extends TimerState {
-  final TimerInfo info;
-
-  Running(this.info) : super();
-
-  String get hourMinuteFormat => fullTimerFormat.split(':').take(2).join(':');
-  String get fullTimerFormat => TimerUtil.durationToString(info.duration);
-
-  @override
-  List<Object> get props => [info];
 }

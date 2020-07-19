@@ -14,6 +14,7 @@ import 'package:study_well/viewmodels/subject/subject_cubit.dart';
 
 import 'pages/subject_page.dart';
 import 'viewmodels/timer/timer_cubit.dart';
+import 'viewmodels/timer/timer_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,31 +102,58 @@ class _MyHomePageState extends State<MyHomePage>
             actions: <Widget>[
               CubitListener<TimerCubit, TimerState>(
                 cubit: sl<TimerCubit>(),
-                listenWhen: (previous, current) => current is Finished,
+                listenWhen: (previous, current) =>
+                    current is Finished && current.info.subjectId != null,
                 listener: (context, state) {
-                  print('FINISHED');
                   _showTimerResumeDialog(state as Finished);
                 },
                 child: CubitBuilder<TimerCubit, TimerState>(
                   cubit: sl<TimerCubit>(),
                   builder: (context, state) {
-                    if (state is Running) {
+                    if (state is Running || state is Paused) {
+                      var currentState = state as Working;
                       return Row(
                         children: <Widget>[
                           Center(
-                            child: Text(state.fullTimerFormat),
+                            child: Text(currentState.fullTimerFormat),
                           ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.stop,
-                              color: Colors.red,
-                            ),
-                            onPressed: () => sl<TimerCubit>().stop(),
-                          )
+                          state is Running
+                              ? IconButton(
+                                  tooltip: 'Pausar',
+                                  icon: Icon(
+                                    Icons.pause,
+                                    color: Colors.yellow,
+                                  ),
+                                  onPressed: () => sl<TimerCubit>().pause(),
+                                )
+                              : Row(
+                                  children: <Widget>[
+                                    IconButton(
+                                      constraints: BoxConstraints.tight(
+                                          Size.fromWidth(30)),
+                                      tooltip: 'Continuar',
+                                      icon: Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.blue,
+                                      ),
+                                      onPressed: () =>
+                                          sl<TimerCubit>().resume(),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Parar',
+                                      icon: Icon(
+                                        Icons.stop,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () => sl<TimerCubit>().stop(),
+                                    )
+                                  ],
+                                )
                         ],
                       );
                     } else {
                       return IconButton(
+                        tooltip: 'Iniciar',
                         icon: Icon(Icons.play_arrow),
                         onPressed: () => _showPlayTimerActionView(),
                       );
@@ -173,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage>
         break;
       case 1:
         text = 'Adicionar estudo';
-        if (state is Running) {
+        if (state is Running || state is Paused) {
           icon = Icon(Icons.stop);
           onPressed = () => sl<TimerCubit>().stop();
         } else {

@@ -3,6 +3,7 @@ import 'package:flutter_cubit/flutter_cubit.dart';
 import 'package:study_well/models/subject_model.dart';
 import 'package:study_well/services/subject_service.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
+import 'package:study_well/viewmodels/timer/timer_state.dart';
 
 import '../service_locator.dart';
 
