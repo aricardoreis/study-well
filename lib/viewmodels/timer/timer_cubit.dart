@@ -43,10 +43,10 @@ class TimerCubit extends HydratedCubit<TimerState> {
 
   @override
   Map<String, dynamic> toJson(TimerState state) {
-    if (state is Working) {
-      return state.toJson();
+    if (state is Running || state is Paused) {
+      return (state as Working).toJson();
     } else {
-      return null;
+      return Working(TimerInfo(0)).toJson();
     }
   }
 
