@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_well/models/study_record_model.dart';
+import 'package:study_well/models/study_type_model.dart';
 import 'package:study_well/models/subject_model.dart';
 import 'package:study_well/services/study_record_service.dart';
 import 'package:study_well/util/timer/timer.dart';
@@ -62,6 +63,7 @@ class _StudyRecordDialogState extends State<StudyRecordDialog> {
                 date: info.start,
                 duration: info.duration,
                 subject: SubjectModel(id: info.subjectId, name: ''),
+                studyType: StudyTypeModel(id: info.type, name: ''),
               ),
             );
             Navigator.of(context).pop(true);

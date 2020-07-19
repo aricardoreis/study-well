@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cubit/flutter_cubit.dart';
+import 'package:study_well/models/study_type_model.dart';
 import 'package:study_well/models/subject_model.dart';
+import 'package:study_well/services/study_type_service.dart';
 import 'package:study_well/services/subject_service.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
 import 'package:study_well/viewmodels/timer/timer_state.dart';
@@ -14,6 +16,7 @@ class TimerDialog extends StatefulWidget {
 
 class _TimerDialogState extends State<TimerDialog> {
   String _selectedSubject;
+  String _selectedStudyType;
 
   @override
   void initState() {
@@ -27,11 +30,16 @@ class _TimerDialogState extends State<TimerDialog> {
     return AlertDialog(
       title: Text('Adicionar estudo'),
       content: FutureBuilder(
-        future: sl<SubjectService>().getAll(),
+        future: Future.wait([
+          sl<SubjectService>().getAll(),
+          sl<StudyTypeService>().getAll(),
+        ]),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            var list = snapshot.data as List<SubjectModel>;
-            var items = list
+            var subjectList = snapshot.data[0] as List<SubjectModel>;
+            var studyTypeList = snapshot.data[1] as List<StudyTypeModel>;
+
+            var subjectItems = subjectList
                 .map(
                   (item) => DropdownMenuItem(
                     child: Text(item.name),
@@ -39,7 +47,17 @@ class _TimerDialogState extends State<TimerDialog> {
                   ),
                 )
                 .toList();
-            return _buildDialog(items);
+
+            var typeItems = studyTypeList
+                .map(
+                  (item) => DropdownMenuItem(
+                    child: Text(item.name),
+                    value: item.id,
+                  ),
+                )
+                .toList();
+
+            return _buildDialog(subjectItems, typeItems);
           } else {
             return Center(
               child: CircularProgressIndicator(),
@@ -57,16 +75,25 @@ class _TimerDialogState extends State<TimerDialog> {
         FlatButton(
           child: Text("Salvar"),
           onPressed: () async {
-            Navigator.of(context).pop(true);
+            if (_selectedSubject != null) {
+              Navigator.of(context).pop(true);
 
-            sl<TimerCubit>().addInfo(_selectedSubject, DateTime.now());
+              sl<TimerCubit>().addInfo(
+                _selectedSubject,
+                _selectedStudyType,
+                DateTime.now(),
+              );
+            }
           },
         ),
       ],
     );
   }
 
-  Widget _buildDialog(List<DropdownMenuItem<String>> subjectItems) {
+  Widget _buildDialog(
+    List<DropdownMenuItem<String>> subjectItems,
+    List<DropdownMenuItem<String>> typeItems,
+  ) {
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -92,33 +119,61 @@ class _TimerDialogState extends State<TimerDialog> {
               },
             ),
           ),
-          ListTile(
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 0.0,
-              vertical: 0.0,
-            ),
-            leading: Icon(
-              Icons.library_books,
-              color: Color(0xFF4C5158),
-            ),
-            title: DropdownButtonFormField<String>(
-              value: _selectedSubject,
-              onChanged: (value) {
-                setState(() {
-                  _selectedSubject = value;
-                });
-              },
-              items: subjectItems,
-              decoration: InputDecoration(
-                labelStyle: TextStyle(
-                  color: Color(0xFF4C5158),
-                ),
-                isDense: true,
-              ),
-            ),
-          )
+          _buildDropDownItem(
+            subjectItems,
+            _selectedSubject,
+            _onSubjectChanged,
+            Icons.library_books,
+          ),
+          _buildDropDownItem(
+            typeItems,
+            _selectedStudyType,
+            _onTypeChanged,
+            Icons.merge_type,
+          ),
         ],
       ),
     );
+  }
+
+  ListTile _buildDropDownItem(
+    List<DropdownMenuItem<String>> items,
+    String selectedValue,
+    ValueChanged<String> onChanged,
+    IconData iconData,
+  ) {
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 0.0,
+        vertical: 0.0,
+      ),
+      leading: Icon(
+        iconData,
+        color: Color(0xFF4C5158),
+      ),
+      title: DropdownButtonFormField<String>(
+        value: selectedValue,
+        onChanged: onChanged,
+        items: items,
+        decoration: InputDecoration(
+          labelStyle: TextStyle(
+            color: Color(0xFF4C5158),
+          ),
+          isDense: true,
+        ),
+      ),
+    );
+  }
+
+  _onSubjectChanged(value) {
+    setState(() {
+      _selectedSubject = value;
+    });
+  }
+
+  _onTypeChanged(value) {
+    setState(() {
+      _selectedStudyType = value;
+    });
   }
 }

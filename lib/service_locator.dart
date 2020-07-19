@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:study_well/services/study_record_service.dart';
+import 'package:study_well/services/study_type_service.dart';
 import 'package:study_well/viewmodels/subject/subject_cubit.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
 
@@ -19,4 +20,5 @@ Future<void> setupServiceLocator() async {
   // services
   sl.registerLazySingleton<SubjectService>(() => SubjectServiceFirebaseImpl());
   sl.registerLazySingleton<StudyRecordService>(() => StudyRecordServiceFirebaseImpl());
+  sl.registerLazySingleton<StudyTypeService>(() => StudyTypeServiceFirebaseImpl());
 }

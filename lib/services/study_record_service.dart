@@ -23,8 +23,11 @@ class StudyRecordServiceFirebaseImpl implements StudyRecordService {
   @override
   Future<bool> insert(StudyRecordModel item) async {
     var subjectRef =
-        Firestore.instance.collection("subject").document(item.subject.id);
-    await _collection.add(item.toJson(subjectRef));
+        Firestore.instance.collection('subject').document(item.subject.id);
+    var typeRef =
+        Firestore.instance.collection('study-type').document(item.studyType.id);
+
+    await _collection.add(item.toJson(subjectRef, typeRef));
 
     return Future.value(true);
   }

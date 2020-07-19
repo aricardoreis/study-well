@@ -47,15 +47,17 @@ class TimerCubit extends HydratedCubit<TimerState> {
       return state.toJson();
     } else {
       return null;
-      // return Working(null).toJson();
     }
   }
 
-  addInfo(String subjectId, DateTime start) {
+  addInfo(String subjectId, String type, DateTime start) {
     if (state is Running) {
       var currentState = state as Running;
-      emit(Running(
-          currentState.info.copyWith(subjectId: subjectId, start: start)));
+      emit(Running(currentState.info.copyWith(
+        subjectId: subjectId,
+        type: type,
+        start: start,
+      )));
     }
   }
 
@@ -115,7 +117,7 @@ class TimerCubit extends HydratedCubit<TimerState> {
     if (transition.nextState is Running) {
       var runningState = transition.nextState as Running;
       print(
-          '[${runningState.info.start}] Duration: ${runningState.info.duration} subjectId: ${runningState.info.subjectId} [${runningState.info.lastUpdateTime}]');
+          '[${runningState.info.start}] Duration: ${runningState.info.duration} subjectId: ${runningState.info.subjectId} type: ${runningState.info.type} [${runningState.info.lastUpdateTime}]');
     }
     super.onTransition(transition);
   }
