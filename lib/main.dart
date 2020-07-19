@@ -189,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  FloatingActionButton _buildFab(TimerState state) {
+  Widget _buildFab(TimerState state) {
     String text;
     Icon icon = Icon(Icons.add);
     Function onPressed = () {};
@@ -200,14 +200,7 @@ class _MyHomePageState extends State<MyHomePage>
         onPressed = () => _showSubjectActionView();
         break;
       case 1:
-        text = 'Adicionar estudo';
-        if (state is Running || state is Paused) {
-          icon = Icon(Icons.stop);
-          onPressed = () => sl<TimerCubit>().stop();
-        } else {
-          icon = Icon(Icons.play_arrow);
-          onPressed = () => _showPlayTimerActionView();
-        }
+        return Container();
         break;
       case 2:
         text = 'Adicionar tipo';
