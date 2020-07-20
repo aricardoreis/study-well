@@ -2,6 +2,7 @@ import 'package:flutter_cubit/flutter_cubit.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hydrated_cubit/hydrated_cubit.dart';
 import 'package:study_well/pages/study_record_dialog.dart';
 import 'package:study_well/pages/study_record_page.dart';
@@ -45,6 +46,14 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en'),
+        const Locale('pt', 'BR'),
+      ],
       theme: ThemeData(
         // primarySwatch: Colors.purple,
         dialogBackgroundColor: theme.successDark,
@@ -177,7 +186,9 @@ class _MyHomePageState extends State<MyHomePage>
             children: [
               SubjectPage(),
               StudyRecordPage(),
-              Icon(Icons.directions_bike),
+              Center(
+                child: Icon(Icons.directions_bike),
+              )
             ],
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:study_well/viewmodels/subject/subject_cubit.dart';
 import 'package:study_well/viewmodels/timer/timer_cubit.dart';
 
 import 'services/subject_service.dart';
+import 'viewmodels/study_record/study_record_cubit.dart';
 
 GetIt sl = GetIt.instance;
 
@@ -15,10 +16,13 @@ Future<void> setupServiceLocator() async {
 
   // cubits
   sl.registerLazySingleton(() => SubjectCubit(service: sl()));
+  sl.registerLazySingleton(() => StudyRecordCubit(service: sl()));
   sl.registerLazySingleton(() => TimerCubit());
 
   // services
   sl.registerLazySingleton<SubjectService>(() => SubjectServiceFirebaseImpl());
-  sl.registerLazySingleton<StudyRecordService>(() => StudyRecordServiceFirebaseImpl());
-  sl.registerLazySingleton<StudyTypeService>(() => StudyTypeServiceFirebaseImpl());
+  // sl.registerLazySingleton<StudyRecordService>(() => StudyRecordServiceFirebaseImpl());
+  sl.registerLazySingleton<StudyRecordService>(() => StudyRecordServiceFake());
+  sl.registerLazySingleton<StudyTypeService>(
+      () => StudyTypeServiceFirebaseImpl());
 }
